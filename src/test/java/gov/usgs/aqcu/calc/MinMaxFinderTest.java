@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -39,11 +40,12 @@ public class MinMaxFinderTest {
 	public void setup() {
 		nowInstant = Instant.now();
 		nowLocalDate = LocalDate.now();
+		service = new MinMaxFinder();
 	}
 
 	@Test
 	public void getMinMaxDataEmptyListTest() {
-		MinMaxData minMaxData = service.getMinMaxData(new ArrayList<TimeSeriesPoint>());
+		MinMaxData minMaxData = service.getMinMaxData(new ArrayList<>());
 		assertNotNull(minMaxData);
 		assertNotNull(minMaxData.getMin());
 		assertTrue(minMaxData.getMin().isEmpty());
@@ -56,7 +58,8 @@ public class MinMaxFinderTest {
 	public void getMinMaxDataDvTest() {
 		boolean endOfPeriod = true;
 		ZoneOffset zoneOffset = ZoneOffset.of("-6");
-		MinMaxData minMaxData = service.getMinMaxData(getTimeSeriesPoints(endOfPeriod, zoneOffset));
+		List<TimeSeriesPoint> timeSeriesPoints = getTimeSeriesPoints(endOfPeriod, zoneOffset);
+		MinMaxData minMaxData = service.getMinMaxData(timeSeriesPoints);
 		assertNotNull(minMaxData);
 		assertNotNull(minMaxData.getMin());
 		assertEquals(3, minMaxData.getMin().size());
@@ -88,8 +91,8 @@ public class MinMaxFinderTest {
 	}
 
 
-	protected ArrayList<TimeSeriesPoint> getTimeSeriesPoints(boolean endOfPeriod, ZoneOffset zoneOffset) {
-		ArrayList<TimeSeriesPoint> timeSeriesPoints = Stream
+	protected List<TimeSeriesPoint> getTimeSeriesPoints(boolean endOfPeriod, ZoneOffset zoneOffset) {
+		List<TimeSeriesPoint> timeSeriesPoints = Stream
 				.of(getTsPoint1(endOfPeriod, zoneOffset),
 					getTsPoint2(endOfPeriod, zoneOffset),
 					getTsPoint3(endOfPeriod, zoneOffset),

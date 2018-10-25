@@ -38,7 +38,7 @@ public class ReportBuilderService {
 	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
 
 	private LocationDescriptionListService locationDescriptionListService;
-	private TimeSeriesDescriptionListService timeSeriesDescriptionService;
+	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
 	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	private FieldVisitDataService fieldVisitDataService;
@@ -47,7 +47,7 @@ public class ReportBuilderService {
 	@Autowired
 	public ReportBuilderService(
 		LocationDescriptionListService locationDescriptionListService,
-		TimeSeriesDescriptionListService timeSeriesDescriptionService,
+		TimeSeriesDescriptionListService timeSeriesDescriptionListService,
 		TimeSeriesDataCorrectedService timeSeriesDataCorrectedService,
 		FieldVisitDescriptionService  fieldVisitDescriptionService,
 		FieldVisitDataService fieldVisitDataService,
@@ -55,7 +55,7 @@ public class ReportBuilderService {
 		QualifierLookupService qualifierLookupService) {
 		this.timeSeriesDataCorrectedService = timeSeriesDataCorrectedService;
 		this.locationDescriptionListService = locationDescriptionListService;
-		this.timeSeriesDescriptionService = timeSeriesDescriptionService;
+		this.timeSeriesDescriptionListService = timeSeriesDescriptionListService;
 		this.fieldVisitDescriptionService = fieldVisitDescriptionService;
 		this.fieldVisitDataService = fieldVisitDataService;
 		this.ratingCurveListService = ratingCurveListService;
@@ -65,7 +65,7 @@ public class ReportBuilderService {
 		VDiagramReport report = new VDiagramReport();
 		MinMaxFinder minMaxFinder = new MinMaxFinder();
 		FieldVisitSetDateRange fieldVisitDateRange = new FieldVisitSetDateRange();		
-		Map<String, TimeSeriesDescription> timeSeriesDescriptions = timeSeriesDescriptionService
+		Map<String, TimeSeriesDescription> timeSeriesDescriptions = timeSeriesDescriptionListService
 				.getTimeSeriesDescriptions(requestParameters.getPrimaryTimeseriesIdentifier(),
 						requestParameters.getUpchainTimeseriesIdentifier());
 		
