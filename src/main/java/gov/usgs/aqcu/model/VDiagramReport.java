@@ -7,6 +7,7 @@ public class VDiagramReport {
 	private List<VDiagramRatingShift> ratingShifts;
 	private List<MinMaxPoint> maximumStageHeight;
 	private List<MinMaxPoint> minimumStageHeight;
+	private List<FieldVisitMeasurement> measurements;
 	
 	public VDiagramReportMetadata getReportMetadata() {
 		return reportMetadata;
@@ -38,6 +39,14 @@ public class VDiagramReport {
 
 	public void setMinimumStageHeight(List<MinMaxPoint> minimumStageHeight) {
 		this.minimumStageHeight = minimumStageHeight;
+	}
+
+	public List<FieldVisitMeasurement> getMeasurements() {
+		return measurements;
+	}
+
+	public void setMeasurements(List<FieldVisitMeasurement> measurements) {
+		this.measurements = measurements;
 	}
 
 	

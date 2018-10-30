@@ -30,7 +30,7 @@ import gov.usgs.aqcu.retrieval.FieldVisitDescriptionService;
 import gov.usgs.aqcu.retrieval.LocationDescriptionListService;
 import gov.usgs.aqcu.retrieval.QualifierLookupService;
 import gov.usgs.aqcu.retrieval.RatingCurveListService;
-import gov.usgs.aqcu.retrieval.TimeSeriesDataCorrectedService;
+import gov.usgs.aqcu.retrieval.TimeSeriesDataService;
 import gov.usgs.aqcu.retrieval.TimeSeriesDescriptionListService;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.PeriodOfApplicability;
@@ -47,7 +47,7 @@ public class ReportBuilderServiceTest {
 	@MockBean
 	private TimeSeriesDescriptionListService timeSeriesDescriptionService;
 	@MockBean
-	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
+	private TimeSeriesDataService timeSeriesDataService;
 	@MockBean
 	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	@MockBean
@@ -179,7 +179,7 @@ public class ReportBuilderServiceTest {
     	service = new ReportBuilderService(
     			locationDescriptionListService,
     			timeSeriesDescriptionService,
-    			timeSeriesDataCorrectedService,
+    			timeSeriesDataService,
     			fieldVisitDescriptionService,
     			fieldVisitDataService,
     			ratingCurveListService,

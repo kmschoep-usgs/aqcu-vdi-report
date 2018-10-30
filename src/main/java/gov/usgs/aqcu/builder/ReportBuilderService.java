@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.time.Instant;
 import java.time.ZoneOffset;
 
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurve;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShift;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ControlConditionType;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
@@ -39,7 +41,7 @@ public class ReportBuilderService {
 
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
-	private TimeSeriesDataCorrectedService timeSeriesDataCorrectedService;
+	private TimeSeriesDataService timeSeriesDataService;
 	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	private FieldVisitDataService fieldVisitDataService;
 	private RatingCurveListService ratingCurveListService;
@@ -48,14 +50,14 @@ public class ReportBuilderService {
 	public ReportBuilderService(
 		LocationDescriptionListService locationDescriptionListService,
 		TimeSeriesDescriptionListService timeSeriesDescriptionListService,
-		TimeSeriesDataCorrectedService timeSeriesDataCorrectedService,
+		TimeSeriesDataService timeSeriesDataService,
 		FieldVisitDescriptionService  fieldVisitDescriptionService,
 		FieldVisitDataService fieldVisitDataService,
 		RatingCurveListService ratingCurveListService,
 		QualifierLookupService qualifierLookupService) {
-		this.timeSeriesDataCorrectedService = timeSeriesDataCorrectedService;
 		this.locationDescriptionListService = locationDescriptionListService;
 		this.timeSeriesDescriptionListService = timeSeriesDescriptionListService;
+		this.timeSeriesDataService = timeSeriesDataService;
 		this.fieldVisitDescriptionService = fieldVisitDescriptionService;
 		this.fieldVisitDataService = fieldVisitDataService;
 		this.ratingCurveListService = ratingCurveListService;
@@ -65,9 +67,9 @@ public class ReportBuilderService {
 		VDiagramReport report = new VDiagramReport();
 		MinMaxFinder minMaxFinder = new MinMaxFinder();
 		FieldVisitSetDateRange fieldVisitDateRange = new FieldVisitSetDateRange();		
-		Map<String, TimeSeriesDescription> timeSeriesDescriptions = timeSeriesDescriptionListService
-				.getTimeSeriesDescriptions(requestParameters.getPrimaryTimeseriesIdentifier(),
-						requestParameters.getUpchainTimeseriesIdentifier());
+		// Time Series Metadata
+		Map<String, TimeSeriesDescription> timeSeriesDescriptions = timeSeriesDescriptionListService.getTimeSeriesDescriptionList(requestParameters.getTsUidList())
+		.stream().collect(Collectors.toMap(t -> t.getUniqueId(), t -> t));
 		
 		//Primary TS Metadata
 		TimeSeriesDescription primaryDescription = timeSeriesDescriptions.get(requestParameters.getPrimaryTimeseriesIdentifier());
@@ -80,13 +82,24 @@ public class ReportBuilderService {
 		ZoneOffset stageZoneOffset = TimeSeriesUtils.getZoneOffset(stageDescription);
 		
 		//Time Series Corrected Data for Stage
-		TimeSeriesDataServiceResponse stageTimeSeriesCorrectedData = timeSeriesDataCorrectedService.get(
-				requestParameters.getUpchainTimeseriesIdentifier(), requestParameters,
-				TimeSeriesUtils.isDailyTimeSeries(stageDescription),
-				stageZoneOffset);
+		TimeSeriesDataServiceResponse stageTimeSeriesCorrectedData = timeSeriesDataService.get(
+				requestParameters.getUpchainTimeseriesIdentifier(), 
+				requestParameters,
+				stageZoneOffset,
+				false,
+				false,
+				false,
+				"PointsOnly"
+				);
+		
 		
 		// Min/Max Stage Heights
 		MinMaxData minMaxStageHeights = minMaxFinder.getMinMaxData(stageTimeSeriesCorrectedData.getPoints());
+		
+		// Rating Shifts
+		List<RatingCurve> ratingCurves = getRatingCurves(requestParameters, primaryZoneOffset);
+		List<RatingShift> ratingShiftList = getRatingShifts(requestParameters, primaryZoneOffset, ratingCurves);
+		List<VDiagramRatingShift> ratingShifts = buildRatingShifts(ratingShiftList, ratingCurves, range);
 		
 		//Field Visits
 		// if Years of Historic Measurements is specified in the request parameters, apply it here.
@@ -94,13 +107,18 @@ public class ReportBuilderService {
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionService.getDescriptions(primaryStationId, primaryZoneOffset, fieldVisitParams);
 		
 		//Measurements
+		List<FieldVisitMeasurement> allFieldVisitMeasurements = new ArrayList<>();
+		
 		for (FieldVisitDescription visit: fieldVisits) {
+			List<FieldVisitMeasurement> fieldVisitMeasurements = new ArrayList<>();
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
-			
-		// Rating Shifts
-		List<RatingCurve> ratingCurves = getRatingCurves(requestParameters, primaryZoneOffset);
-		List<RatingShift> ratingShiftList = getRatingShifts(requestParameters, primaryZoneOffset, ratingCurves);
-		List<VDiagramRatingShift> ratingShifts = buildRatingShifts(ratingShiftList, ratingCurves, range);
+			if (requestParameters.getExcludeConditions() == null || !requestParameters.getExcludeConditions().contains(fieldVisitData.getControlConditionActivity().getControlCondition().name())){
+				fieldVisitMeasurements = fieldVisitDataService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
+			}
+			allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
+		}
+		List<FieldVisitMeasurement> fieldVisitMeasurementsShiftSet = new ShiftNumberCalculator().calculateMeasurementsShiftNumber(range, ratingShifts, allFieldVisitMeasurements);
+		report.setMeasurements(fieldVisitMeasurementsShiftSet);
 		
 		// Add rating shifts to report
 		report.setRatingShifts(ratingShifts);
@@ -111,9 +129,7 @@ public class ReportBuilderService {
 		report.setReportMetadata(getReportMetadata(requestParameters,
 			requestingUser,
 			timeSeriesDescriptions
-		));
-		}
-		
+		));		
 		return report;
 	}
 
@@ -140,19 +156,18 @@ public class ReportBuilderService {
 	}
 
 	protected List<VDiagramRatingShift> buildRatingShifts(List<RatingShift> ratingShiftList, List<RatingCurve> ratingCurves, TimeRange range) {
-		
 		//Create Rating Shifts
-				List<VDiagramRatingShift> ratingShifts = new ArrayList<>();
-				ratingShiftList.parallelStream().forEachOrdered(shift -> {
-					List<VDiagramRatingShift> ratingShiftsbyCurve = ratingCurves.parallelStream()
-							.filter(x -> x.getShifts().contains(shift))
-							.map(x -> {
-								VDiagramRatingShift newShift = new VDiagramRatingShift(shift, x.getId());
-								return newShift;
-							})
-							.collect(Collectors.toList());
-					ratingShifts.addAll(ratingShiftsbyCurve);
-				});
+		List<VDiagramRatingShift> ratingShifts = new ArrayList<>();
+		ratingShiftList.parallelStream().forEachOrdered(shift -> {
+			List<VDiagramRatingShift> ratingShiftsbyCurve = ratingCurves.parallelStream()
+					.filter(x -> x.getShifts().contains(shift))
+					.map(x -> {
+						VDiagramRatingShift newShift = new VDiagramRatingShift(shift, x.getId());
+						return newShift;
+					})
+					.collect(Collectors.toList());
+			ratingShifts.addAll(ratingShiftsbyCurve);
+		});
 		List<VDiagramRatingShift> ratingShiftNumberSet = new ShiftNumberCalculator().calculateRatingShiftNumber(range, ratingShifts);
 		return ratingShiftNumberSet;
 	}

@@ -43,6 +43,13 @@ public class VDiagramRequestParameters extends ReportRequestParameters {
 		this.excludeConditions = val != null ? val : new ArrayList<>();
 	}
 
+	public List<String> getTsUidList() {
+		List<String> tsUidList = new ArrayList<>();
+		tsUidList.add(getPrimaryTimeseriesIdentifier());
+		tsUidList.add(getUpchainTimeseriesIdentifier());
+		return tsUidList;
+	}
+
 	@Override 
 	public String getAsQueryString(String overrideIdentifier, boolean absoluteTime) {
 		String queryString = super.getAsQueryString(overrideIdentifier, absoluteTime);
