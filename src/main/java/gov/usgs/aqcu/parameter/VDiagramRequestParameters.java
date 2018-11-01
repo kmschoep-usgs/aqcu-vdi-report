@@ -35,11 +35,11 @@ public class VDiagramRequestParameters extends ReportRequestParameters {
 	public void setPriorYearsHistoric(String priorYearsHistoric) {
 		this.priorYearsHistoric = priorYearsHistoric;
 	}
-	public List<String> getExcludeConditions() {
+	public List<String> getExcludedControlConditions() {
 		return excludeConditions;
 	}
 	
-	public void setExcludeConditions(List<String> val) {
+	public void setExcludedControlConditions(List<String> val) {
 		this.excludeConditions = val != null ? val : new ArrayList<>();
 	}
 
@@ -48,16 +48,5 @@ public class VDiagramRequestParameters extends ReportRequestParameters {
 		tsUidList.add(getPrimaryTimeseriesIdentifier());
 		tsUidList.add(getUpchainTimeseriesIdentifier());
 		return tsUidList;
-	}
-
-	@Override 
-	public String getAsQueryString(String overrideIdentifier, boolean absoluteTime) {
-		String queryString = super.getAsQueryString(overrideIdentifier, absoluteTime);
-
-		if(getExcludeConditions().size() > 0) {
-			queryString += "&excludeConditions=" + String.join(",", excludeConditions);
-		}
-
-		return queryString;
 	}
 }

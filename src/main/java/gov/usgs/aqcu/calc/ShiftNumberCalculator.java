@@ -115,8 +115,8 @@ public class ShiftNumberCalculator {
 	 * @param inTime The time that should be compared with the date range calling this function.
 	 * @return TRUE - The provided time is contained in the date range. | FALSE - The provided time is not contained in the date range.
 	 */
-	public boolean contains(TimeRange inRange, Temporal inTime) {
-		return OffsetDateTime.from(inRange.getStartTime()).isBefore(OffsetDateTime.from(inTime)) && OffsetDateTime.from(inRange.getEndTime()).isAfter(OffsetDateTime.from(inTime));
+	public boolean contains(TimeRange inRange, Instant inTime) {
+		return inRange.getStartTime().isBefore(inTime) && inRange.getEndTime().isAfter(inTime);
 	}
 	
 	/**

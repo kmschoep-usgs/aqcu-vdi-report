@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.DoubleWithDisplay;
@@ -30,9 +31,10 @@ import gov.usgs.aqcu.model.MinMaxData;
 import gov.usgs.aqcu.model.MinMaxPoint;
 
 @RunWith(SpringRunner.class)
+@ActiveProfiles("test")
 public class MinMaxFinderTest {
 
-	private MinMaxFinder service;
+	private MinMaxFinder service = new MinMaxFinder();
 	private Instant nowInstant;
 	private LocalDate nowLocalDate;
 

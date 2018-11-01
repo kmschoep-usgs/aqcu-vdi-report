@@ -8,16 +8,18 @@ import java.time.ZoneOffset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import gov.usgs.aqcu.parameter.DateRangeRequestParameters;
 import gov.usgs.aqcu.parameter.VDiagramRequestParameters;
 
 @RunWith(SpringRunner.class)
+@ActiveProfiles("test")
 public class FieldVisitSetDateRangeTest {
 
-	private VDiagramRequestParameters parameters;
-	private FieldVisitSetDateRange fieldVisitParamCalc;
+	private VDiagramRequestParameters parameters = new VDiagramRequestParameters();
+	private FieldVisitSetDateRange fieldVisitParamCalc = new FieldVisitSetDateRange();
 	public static final LocalDate REPORT_END_DATE = LocalDate.of(2018, 03, 17);
 	public static final LocalDate REPORT_START_DATE = LocalDate.of(2018, 03, 16);
 

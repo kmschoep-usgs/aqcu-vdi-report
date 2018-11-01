@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ParameterWithUnit;
@@ -37,6 +38,7 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Peri
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurveType;
 
 @RunWith(SpringRunner.class)
+@ActiveProfiles("test")
 public class ReportBuilderServiceTest {
 	private static final Logger log = LoggerFactory.getLogger(ReportBuilderServiceTest.class);
 	
@@ -57,7 +59,8 @@ public class ReportBuilderServiceTest {
 	@MockBean
 	private QualifierLookupService qualifierLookupService;
 
-	private ReportBuilderService service;	
+	private ReportBuilderService service;
+	
 	private TimeRange range = new TimeRange().setStartTime(Instant.parse("2017-01-01T00:00:00Z"))
 			.setEndTime(Instant.parse("2017-01-10T00:00:00Z"));
 

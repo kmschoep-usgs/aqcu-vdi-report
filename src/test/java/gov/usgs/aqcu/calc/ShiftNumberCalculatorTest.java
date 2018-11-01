@@ -1,6 +1,7 @@
 package gov.usgs.aqcu.calc;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ParameterWithUnit;
@@ -22,12 +24,14 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Rati
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShiftPoint;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;
 
+import gov.usgs.aqcu.model.FieldVisitMeasurement;
 import gov.usgs.aqcu.model.VDiagramRatingShift;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.PeriodOfApplicability;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurveType;
 
 @RunWith(SpringRunner.class)
+@ActiveProfiles("test")
 public class ShiftNumberCalculatorTest {
 	private static final Logger log = LoggerFactory.getLogger(ShiftNumberCalculatorTest.class);
 	
@@ -36,7 +40,14 @@ public class ShiftNumberCalculatorTest {
 
 	Instant startTime = Instant.parse("2017-01-01T00:00:00Z");
 	Instant endTime = Instant.parse("2017-01-10T00:00:00Z");
-		
+	
+	private static FieldVisitMeasurement fieldVisitMeasurementA = new FieldVisitMeasurement();
+	private static FieldVisitMeasurement fieldVisitMeasurementB = new FieldVisitMeasurement();
+	private static FieldVisitMeasurement fieldVisitMeasurementG = new FieldVisitMeasurement();
+	private static FieldVisitMeasurement fieldVisitMeasurementH = new FieldVisitMeasurement();
+	
+	private static List<FieldVisitMeasurement> MEASUREMENT_LIST = new ArrayList<>();
+	
 	private static final PeriodOfApplicability periodA = new PeriodOfApplicability()
 		.setStartTime(Instant.parse("2017-01-01T00:00:00Z"))
 		.setEndTime(Instant.parse("2017-01-02T00:00:00Z"))
@@ -149,6 +160,13 @@ public class ShiftNumberCalculatorTest {
     @Before
 	@SuppressWarnings("unchecked")
 	public void setup() {
+    	fieldVisitMeasurementA.setMeasurementStartDate(Instant.parse("2017-01-01T05:00:00Z"));
+    	fieldVisitMeasurementB.setMeasurementStartDate(Instant.parse("2017-01-06T00:00:00Z"));
+    	fieldVisitMeasurementG.setMeasurementStartDate(Instant.parse("2017-01-11T10:00:00Z"));
+    	fieldVisitMeasurementH.setMeasurementStartDate(Instant.parse("2015-01-01T00:00:00Z"));
+    	
+    	MEASUREMENT_LIST = new ArrayList<FieldVisitMeasurement>(Arrays.asList(fieldVisitMeasurementA, fieldVisitMeasurementB, fieldVisitMeasurementG, fieldVisitMeasurementH));
+    	
 	}
     
     @Test
@@ -159,5 +177,20 @@ public class ShiftNumberCalculatorTest {
 		assertEquals(1, shiftList.get(0).getShiftNumber());
 		assertEquals(2, shiftList.get(1).getShiftNumber());
 		assertEquals(0, shiftList.get(4).getShiftNumber());
+	}
+    
+    /**
+	 * Test of calculateMeasurementsShiftNumber method
+	 */
+	@Test
+	public void testCalculateMeasurementsShiftNumber() {
+		log.debug("test calculateMeasurementsShiftNumber");
+		List<VDiagramRatingShift> shiftList = new ShiftNumberCalculator().calculateRatingShiftNumber(range, SHIFT_LIST);
+		List<FieldVisitMeasurement>  measurements = new ShiftNumberCalculator().calculateMeasurementsShiftNumber(range, shiftList, MEASUREMENT_LIST);
+		assertEquals("1", measurements.get(0).getShiftNumber().toString());
+		assertEquals(false, measurements.get(0).isHistoric());
+		assertEquals("2", measurements.get(1).getShiftNumber().toString());
+		assertNull(measurements.get(2).getShiftNumber());
+		assertEquals(true, measurements.get(3).isHistoric());
 	}
 }

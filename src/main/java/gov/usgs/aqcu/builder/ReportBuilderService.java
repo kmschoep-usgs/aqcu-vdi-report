@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurve;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShift;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ControlConditionType;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
@@ -112,10 +111,11 @@ public class ReportBuilderService {
 		for (FieldVisitDescription visit: fieldVisits) {
 			List<FieldVisitMeasurement> fieldVisitMeasurements = new ArrayList<>();
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
-			if (requestParameters.getExcludeConditions() == null || !requestParameters.getExcludeConditions().contains(fieldVisitData.getControlConditionActivity().getControlCondition().name())){
+			if (requestParameters.getExcludedControlConditions() == null || !requestParameters.getExcludedControlConditions().contains(fieldVisitData.getControlConditionActivity().getControlCondition().name())){
 				fieldVisitMeasurements = fieldVisitDataService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
+				allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
 			}
-			allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
+			
 		}
 		List<FieldVisitMeasurement> fieldVisitMeasurementsShiftSet = new ShiftNumberCalculator().calculateMeasurementsShiftNumber(range, ratingShifts, allFieldVisitMeasurements);
 		report.setMeasurements(fieldVisitMeasurementsShiftSet);
