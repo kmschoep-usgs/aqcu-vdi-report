@@ -11,15 +11,13 @@ import gov.usgs.aqcu.model.VDiagramRatingShift;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;   
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.temporal.Temporal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
  *
- * @author dpattermann
+ * @author dpattermann, kmschoep
  */
 public class ShiftNumberCalculator {
 	
