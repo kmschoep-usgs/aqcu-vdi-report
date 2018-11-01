@@ -20,7 +20,7 @@ public class VDiagramReportMetadata extends ReportMetadata {
 	}
 
 	public void setRequestingUser(String val) {
-		requestingUser = val;
+		this.requestingUser = val;
 	}
 	
 	public void setPrimaryTimeseriesIdentifier(String dischargeId) {
