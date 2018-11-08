@@ -181,14 +181,15 @@ public class ReportBuilderServiceTest {
     @Before
 	public void setup() {
     	service = new ReportBuilderService(
-    			locationDescriptionListService,
-    			timeSeriesDescriptionService,
-    			timeSeriesDataService,
-    			fieldVisitDescriptionService,
-				fieldVisitDataService,
-				fieldVisitMeasurementsBuilderService,
-    			ratingCurveListService,
-    			qualifierLookupService);
+			locationDescriptionListService,
+			timeSeriesDescriptionService,
+			timeSeriesDataService,
+			fieldVisitDescriptionService,
+			fieldVisitDataService,
+			fieldVisitMeasurementsBuilderService,
+			ratingCurveListService,
+			qualifierLookupService
+		);
 	}
     
     @Test
