@@ -24,7 +24,6 @@ public class FieldVisitSetDateRangeTest {
 	public static final LocalDate REPORT_START_DATE = LocalDate.of(2018, 03, 16);
 
 	@Before
-	@SuppressWarnings("unchecked")
 	public void setup() throws Exception {
 		parameters = new VDiagramRequestParameters();
 		fieldVisitParamCalc = new FieldVisitSetDateRange();

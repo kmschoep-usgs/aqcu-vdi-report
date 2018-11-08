@@ -58,6 +58,8 @@ public class ReportBuilderServiceTest {
 	private RatingCurveListService ratingCurveListService;
 	@MockBean
 	private QualifierLookupService qualifierLookupService;
+	@MockBean
+	private FieldVisitMeasurementsBuilderService fieldVisitMeasurementsBuilderService;
 
 	private ReportBuilderService service;
 	
@@ -177,14 +179,14 @@ public class ReportBuilderServiceTest {
 	public static final List<VDiagramRatingShift> VDIAGRAM_SHIFT_LIST = new ArrayList<VDiagramRatingShift>(Arrays.asList(vDShiftA1, vDShiftA2, vDShiftA3, vDShiftA4));
 
     @Before
-	@SuppressWarnings("unchecked")
 	public void setup() {
     	service = new ReportBuilderService(
     			locationDescriptionListService,
     			timeSeriesDescriptionService,
     			timeSeriesDataService,
     			fieldVisitDescriptionService,
-    			fieldVisitDataService,
+				fieldVisitDataService,
+				fieldVisitMeasurementsBuilderService,
     			ratingCurveListService,
     			qualifierLookupService);
 	}

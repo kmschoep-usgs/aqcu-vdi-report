@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.ZoneOffset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,13 +32,12 @@ public class ReportBuilderService {
 	public static final String REPORT_TITLE = "V-Diagram";
 	public static final String REPORT_TYPE = "vdiagram";
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
-
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataService timeSeriesDataService;
 	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	private FieldVisitDataService fieldVisitDataService;
+	private FieldVisitMeasurementsBuilderService fieldVisitMeasurementsBuilderService;
 	private RatingCurveListService ratingCurveListService;
 
 	@Autowired
@@ -51,6 +47,7 @@ public class ReportBuilderService {
 		TimeSeriesDataService timeSeriesDataService,
 		FieldVisitDescriptionService  fieldVisitDescriptionService,
 		FieldVisitDataService fieldVisitDataService,
+		FieldVisitMeasurementsBuilderService fieldVisitMeasurementsBuilderService,
 		RatingCurveListService ratingCurveListService,
 		QualifierLookupService qualifierLookupService) {
 		this.locationDescriptionListService = locationDescriptionListService;
@@ -58,6 +55,7 @@ public class ReportBuilderService {
 		this.timeSeriesDataService = timeSeriesDataService;
 		this.fieldVisitDescriptionService = fieldVisitDescriptionService;
 		this.fieldVisitDataService = fieldVisitDataService;
+		this.fieldVisitMeasurementsBuilderService = fieldVisitMeasurementsBuilderService;
 		this.ratingCurveListService = ratingCurveListService;
 	}
 
@@ -111,7 +109,7 @@ public class ReportBuilderService {
 			List<FieldVisitMeasurement> fieldVisitMeasurements = new ArrayList<>();
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
 			if (requestParameters.getExcludedControlConditions() == null || !requestParameters.getExcludedControlConditions().contains(fieldVisitData.getControlConditionActivity().getControlCondition().name())){
-				fieldVisitMeasurements = fieldVisitDataService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
+				fieldVisitMeasurements = fieldVisitMeasurementsBuilderService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
 				allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
 			}
 			
