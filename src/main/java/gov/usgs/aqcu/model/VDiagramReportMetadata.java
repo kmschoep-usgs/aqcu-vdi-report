@@ -30,6 +30,18 @@ public class VDiagramReportMetadata extends ReportMetadata {
 	public void setUpchainTimeseriesIdentifier(String stageId) {
 		this.upchainTimeseriesIdentifier = stageId;
 	}
+
+	public String getPrimaryTimeseriesIdentifier() {
+		return primaryTimeseriesIdentifier;
+	}
+
+	public String getUpchainTimeseriesIdentifier() {
+		return upchainTimeseriesIdentifier;
+	}
+
+	public String getRatingModelIdentifier() {
+		return ratingModelIdentifier;
+	}
 	
 	public void setRequestParameters(VDiagramRequestParameters val) {
 		requestParameters = val;

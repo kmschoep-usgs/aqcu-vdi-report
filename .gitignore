@@ -2,3 +2,5 @@
 /.project
 /aqcu-vdi-application.yml
 /.classpath
+/.settings
+/.vscode

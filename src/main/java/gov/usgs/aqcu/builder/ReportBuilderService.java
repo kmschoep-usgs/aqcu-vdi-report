@@ -6,15 +6,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.ZoneOffset;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurve;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShift;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;
+import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ControlConditionActivity;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
@@ -35,13 +33,12 @@ public class ReportBuilderService {
 	public static final String REPORT_TITLE = "V-Diagram";
 	public static final String REPORT_TYPE = "vdiagram";
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ReportBuilderService.class);
-
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataService timeSeriesDataService;
 	private FieldVisitDescriptionService fieldVisitDescriptionService;
 	private FieldVisitDataService fieldVisitDataService;
+	private FieldVisitMeasurementsBuilderService fieldVisitMeasurementsBuilderService;
 	private RatingCurveListService ratingCurveListService;
 
 	@Autowired
@@ -51,6 +48,7 @@ public class ReportBuilderService {
 		TimeSeriesDataService timeSeriesDataService,
 		FieldVisitDescriptionService  fieldVisitDescriptionService,
 		FieldVisitDataService fieldVisitDataService,
+		FieldVisitMeasurementsBuilderService fieldVisitMeasurementsBuilderService,
 		RatingCurveListService ratingCurveListService,
 		QualifierLookupService qualifierLookupService) {
 		this.locationDescriptionListService = locationDescriptionListService;
@@ -58,6 +56,7 @@ public class ReportBuilderService {
 		this.timeSeriesDataService = timeSeriesDataService;
 		this.fieldVisitDescriptionService = fieldVisitDescriptionService;
 		this.fieldVisitDataService = fieldVisitDataService;
+		this.fieldVisitMeasurementsBuilderService = fieldVisitMeasurementsBuilderService;
 		this.ratingCurveListService = ratingCurveListService;
 	}
 
@@ -81,15 +80,14 @@ public class ReportBuilderService {
 		
 		//Time Series Corrected Data for Stage
 		TimeSeriesDataServiceResponse stageTimeSeriesCorrectedData = timeSeriesDataService.get(
-				requestParameters.getUpchainTimeseriesIdentifier(), 
-				requestParameters,
-				stageZoneOffset,
-				false,
-				false,
-				false,
-				"PointsOnly"
-				);
-		
+			requestParameters.getUpchainTimeseriesIdentifier(), 
+			requestParameters,
+			stageZoneOffset,
+			false,
+			false,
+			false,
+			"PointsOnly"
+		);
 		
 		// Min/Max Stage Heights
 		MinMaxData minMaxStageHeights = minMaxFinder.getMinMaxData(stageTimeSeriesCorrectedData.getPoints());
@@ -110,8 +108,10 @@ public class ReportBuilderService {
 		for (FieldVisitDescription visit: fieldVisits) {
 			List<FieldVisitMeasurement> fieldVisitMeasurements = new ArrayList<>();
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
-			if (requestParameters.getExcludedControlConditions() == null || !requestParameters.getExcludedControlConditions().contains(fieldVisitData.getControlConditionActivity().getControlCondition().name())){
-				fieldVisitMeasurements = fieldVisitDataService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
+			String controlConditionName = fieldVisitData.getControlConditionActivity() != null ? fieldVisitData.getControlConditionActivity().getControlCondition().name() : null;
+			
+			if (requestParameters.getExcludedControlConditions() == null || controlConditionName == null || !requestParameters.getExcludedControlConditions().contains(controlConditionName)){
+				fieldVisitMeasurements = fieldVisitMeasurementsBuilderService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
 				allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
 			}
 			

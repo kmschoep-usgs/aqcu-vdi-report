@@ -158,7 +158,6 @@ public class ShiftNumberCalculatorTest {
 	public static final List<VDiagramRatingShift> SHIFT_LIST = new ArrayList<VDiagramRatingShift>(Arrays.asList(vDShiftA1, vDShiftA2, vDShiftA3, vDShiftA4, vDShiftC1));
 
     @Before
-	@SuppressWarnings("unchecked")
 	public void setup() {
     	fieldVisitMeasurementA.setMeasurementStartDate(Instant.parse("2017-01-01T05:00:00Z"));
     	fieldVisitMeasurementB.setMeasurementStartDate(Instant.parse("2017-01-06T00:00:00Z"));
