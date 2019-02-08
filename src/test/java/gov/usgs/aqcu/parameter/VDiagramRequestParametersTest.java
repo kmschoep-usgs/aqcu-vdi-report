@@ -26,7 +26,7 @@ public class VDiagramRequestParametersTest {
 		params.setPrimaryTimeseriesIdentifier(primaryIdentifier);
 		params.determineRequestPeriod();
         params.setExcludeConditions(excludeConditions);
-        String expected = "startDate=2018-03-16&endDate=2018-03-16&primaryTimeseriesIdentifier=test-identifier&excludeConditions=IceAnchor%2CIceCover%2CIceShore";
+        String expected = "startDate=2018-03-16&endDate=2018-03-16&primaryTimeseriesIdentifier=test-identifier&excludeConditions=IceAnchor,IceCover,IceShore";
 		assertEquals(0, params.getAsQueryString(null, false).compareTo(expected));
 	}
 }
