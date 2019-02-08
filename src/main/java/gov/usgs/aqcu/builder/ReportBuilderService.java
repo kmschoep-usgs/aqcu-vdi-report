@@ -109,7 +109,7 @@ public class ReportBuilderService {
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
 			String controlConditionName = fieldVisitData.getControlConditionActivity() != null ? fieldVisitData.getControlConditionActivity().getControlCondition() : null;
 			
-			if (requestParameters.getExcludedControlConditions() == null || controlConditionName == null || !requestParameters.getExcludedControlConditions().contains(controlConditionName)){
+			if (requestParameters.getExcludeConditions() == null || controlConditionName == null || !requestParameters.getExcludeConditions().contains(controlConditionName)){
 				fieldVisitMeasurements = fieldVisitMeasurementsBuilderService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
 				allFieldVisitMeasurements.addAll(fieldVisitMeasurements);
 			}
