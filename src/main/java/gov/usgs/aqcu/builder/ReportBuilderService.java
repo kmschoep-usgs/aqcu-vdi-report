@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurve;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShift;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;
-import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.ControlConditionActivity;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDataServiceResponse;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.FieldVisitDescription;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeSeriesDataServiceResponse;
@@ -108,7 +107,7 @@ public class ReportBuilderService {
 		for (FieldVisitDescription visit: fieldVisits) {
 			List<FieldVisitMeasurement> fieldVisitMeasurements = new ArrayList<>();
 			FieldVisitDataServiceResponse fieldVisitData = fieldVisitDataService.get(visit.getIdentifier());
-			String controlConditionName = fieldVisitData.getControlConditionActivity() != null ? fieldVisitData.getControlConditionActivity().getControlCondition().name() : null;
+			String controlConditionName = fieldVisitData.getControlConditionActivity() != null ? fieldVisitData.getControlConditionActivity().getControlCondition() : null;
 			
 			if (requestParameters.getExcludedControlConditions() == null || controlConditionName == null || !requestParameters.getExcludedControlConditions().contains(controlConditionName)){
 				fieldVisitMeasurements = fieldVisitMeasurementsBuilderService.extractFieldVisitMeasurements(fieldVisitData, requestParameters.getRatingModelIdentifier());
