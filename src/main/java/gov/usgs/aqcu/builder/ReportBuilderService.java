@@ -8,6 +8,8 @@ import java.time.ZoneOffset;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingCurve;
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.RatingShift;
@@ -20,6 +22,7 @@ import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.Time
 import gov.usgs.aqcu.parameter.DateRangeRequestParameters;
 import gov.usgs.aqcu.parameter.VDiagramRequestParameters;
 import gov.usgs.aqcu.util.AqcuTimeUtils;
+import gov.usgs.aqcu.util.LogExecutionTime;
 import gov.usgs.aqcu.util.TimeSeriesUtils;
 import gov.usgs.aqcu.calc.FieldVisitSetDateRange;
 import gov.usgs.aqcu.calc.MinMaxFinder;
@@ -32,6 +35,8 @@ public class ReportBuilderService {
 	public static final String REPORT_TITLE = "V-Diagram";
 	public static final String REPORT_TYPE = "vdiagram";
 	
+	private Logger log = LoggerFactory.getLogger(ReportBuilderService.class);
+
 	private LocationDescriptionListService locationDescriptionListService;
 	private TimeSeriesDescriptionListService timeSeriesDescriptionListService;
 	private TimeSeriesDataService timeSeriesDataService;
@@ -59,11 +64,13 @@ public class ReportBuilderService {
 		this.ratingCurveListService = ratingCurveListService;
 	}
 
+	@LogExecutionTime
 	public VDiagramReport buildReport(VDiagramRequestParameters requestParameters, String requestingUser) {
 		VDiagramReport report = new VDiagramReport();
 		MinMaxFinder minMaxFinder = new MinMaxFinder();
 		FieldVisitSetDateRange fieldVisitDateRange = new FieldVisitSetDateRange();		
 		// Time Series Metadata
+		log.debug("Get and parse time series descriptions");
 		Map<String, TimeSeriesDescription> timeSeriesDescriptions = timeSeriesDescriptionListService.getTimeSeriesDescriptionList(requestParameters.getTsUidList())
 		.stream().collect(Collectors.toMap(t -> t.getUniqueId(), t -> t));
 		
@@ -78,6 +85,7 @@ public class ReportBuilderService {
 		ZoneOffset stageZoneOffset = TimeSeriesUtils.getZoneOffset(stageDescription);
 		
 		//Time Series Corrected Data for Stage
+		log.debug("Get time series corrected data for Stage");
 		TimeSeriesDataServiceResponse stageTimeSeriesCorrectedData = timeSeriesDataService.get(
 			requestParameters.getUpchainTimeseriesIdentifier(), 
 			requestParameters,
@@ -89,19 +97,23 @@ public class ReportBuilderService {
 		);
 		
 		// Min/Max Stage Heights
+		log.debug("Calculate min/max stage heights");
 		MinMaxData minMaxStageHeights = minMaxFinder.getMinMaxData(stageTimeSeriesCorrectedData.getPoints());
 		
 		// Rating Shifts
+		log.debug("Get and parse rating shifts");
 		List<RatingCurve> ratingCurves = getRatingCurves(requestParameters, primaryZoneOffset);
 		List<RatingShift> ratingShiftList = getRatingShifts(requestParameters, primaryZoneOffset, ratingCurves);
 		List<VDiagramRatingShift> ratingShifts = buildRatingShifts(ratingShiftList, ratingCurves, range);
 		
 		//Field Visits
 		// if Years of Historic Measurements is specified in the request parameters, apply it here.
+		log.debug("Get and parse field visit data");
 		DateRangeRequestParameters fieldVisitParams = fieldVisitDateRange.setNewStartDate(requestParameters, primaryZoneOffset);
 		List<FieldVisitDescription> fieldVisits = fieldVisitDescriptionService.getDescriptions(primaryStationId, primaryZoneOffset, fieldVisitParams);
 		
 		//Measurements
+		log.debug("Get field visit data for each field visit and extract measurements");
 		List<FieldVisitMeasurement> allFieldVisitMeasurements = new ArrayList<>();
 		
 		for (FieldVisitDescription visit: fieldVisits) {

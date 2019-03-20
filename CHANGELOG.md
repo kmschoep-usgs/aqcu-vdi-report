@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+- Add performance logging for report builder
+- Add debug log statements
+- Enable logging of application
+
+### Changed
+- update to aqcu-framework version 0.0.6-SNAPSHOT
+
+
+## [0.0.1] - 2018-04-20
+### Added
 - Initial release - happy path.
 
-[Unreleased]: https://github.com/USGS-CIDA/aqcu-vdi-report/compare/master...master
+[Unreleased]: https://github.com/USGS-CIDA/aqcu-vdi-report/compare/aqcu-vdi-report-0.0.1...master
+[0.0.1]: https://github.com/USGS-CIDA/aqcu-vdi-report/tree/aqcu-vdi-report-0.0.1

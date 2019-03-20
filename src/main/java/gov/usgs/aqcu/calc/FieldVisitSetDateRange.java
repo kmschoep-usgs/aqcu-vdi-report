@@ -6,13 +6,14 @@ import java.time.ZoneOffset;
 
 import gov.usgs.aqcu.parameter.DateRangeRequestParameters;
 import gov.usgs.aqcu.parameter.VDiagramRequestParameters;
+import gov.usgs.aqcu.util.LogExecutionTime;
 import gov.usgs.aqcu.validation.RequiredIdentifiersPresent;
 
 @RequiredIdentifiersPresent
 public class FieldVisitSetDateRange {
 	private static final int YEARS_PRIOR_FOR_HISTORIC = 0;
 	
-	
+	@LogExecutionTime
 	public DateRangeRequestParameters setNewStartDate(VDiagramRequestParameters inRequestParameters, ZoneOffset zoneOffset) {
 		DateRangeRequestParameters fieldVisitParams = new DateRangeRequestParameters();
 		Instant instStartDate = inRequestParameters.getStartInstant(zoneOffset);

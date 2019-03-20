@@ -76,3 +76,8 @@ spring:
     name: aqcu-vdi-report
   jmx:
     default-domain: aqcu-vdi-report
+
+logging:
+  level:
+    org:
+      springframework: ${aqcu_springFrameworkLogLevel}

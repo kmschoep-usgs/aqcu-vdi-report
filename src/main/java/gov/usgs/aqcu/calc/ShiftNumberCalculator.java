@@ -7,6 +7,7 @@ package gov.usgs.aqcu.calc;
 
 import gov.usgs.aqcu.model.FieldVisitMeasurement;
 import gov.usgs.aqcu.model.VDiagramRatingShift;
+import gov.usgs.aqcu.util.LogExecutionTime;
 
 import com.aquaticinformatics.aquarius.sdk.timeseries.servicemodels.Publish.TimeRange;   
 import java.math.BigDecimal;
@@ -30,7 +31,8 @@ public class ShiftNumberCalculator {
 	 * @param comparisonRatingShiftsList Used to match shift numbers to
 	 * @param measurements List of field visit measurements which need shift number set.
 	 * @return Returns a list of measurements with shift numbers and historic set properly.
-	 */
+	 */	
+	@LogExecutionTime
 	public List<FieldVisitMeasurement> calculateMeasurementsShiftNumber(TimeRange range, List<VDiagramRatingShift> comparisonRatingShiftsList, List<FieldVisitMeasurement> measurements){
 		checkMeasurementsForHistoric(range, measurements);
 		
@@ -54,7 +56,8 @@ public class ShiftNumberCalculator {
 	 * @param range The date range to work within, ignore if outside the range.
 	 * @param ratingShiftsList Rating shifts which need shift numbers set.
 	 * @return  A list of rating shifts that have been given shift numbers.
-	 */
+	 */	
+	@LogExecutionTime
 	public List<VDiagramRatingShift> calculateRatingShiftNumber(TimeRange range, List<VDiagramRatingShift> ratingShiftsList){
 		Set<String> uniqueShiftNumbers = new HashSet<>();
 		
