@@ -11,6 +11,7 @@ import gov.usgs.aqcu.model.MinMaxData;
 import gov.usgs.aqcu.model.MinMaxPoint;
 import gov.usgs.aqcu.util.BigDecimalSummaryStatistics;
 import gov.usgs.aqcu.util.DoubleWithDisplayUtil;
+import gov.usgs.aqcu.util.LogExecutionTime;
 
 /**
  * Produces a summarized version of the time series including min and max points.
@@ -21,7 +22,8 @@ public class MinMaxFinder {
 	
 	/**
 	 * This method should only be called if the timeSeriesPoints list is not null.
-	 */
+	 */	
+	@LogExecutionTime
 	public MinMaxData getMinMaxData(List<TimeSeriesPoint> timeSeriesPoints) {
 		Map<BigDecimal, List<MinMaxPoint>> minMaxPoints = timeSeriesPoints.parallelStream()
 				.map(x -> {
